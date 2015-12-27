@@ -1,0 +1,17 @@
+#mapa-ubicaciones {
+    height: 500px;
+}
+.mapa-ubicaciones-contenedor {
+
+}
+.mapa-ubicaciones-contenedor .mapa-ubicaciones-popup {
+
+}
+.mapa-ubicaciones-contenedor .mapa-ubicaciones-nombre {
+    font-size: 1.3em;
+    margin: 0;
+    padding: 0;
+}
+.mapa-ubicaciones-contenedor .mapa-ubicaciones-contenido p {
+    margin: 0.25em;
+}
