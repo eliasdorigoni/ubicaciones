@@ -91,18 +91,51 @@ class FrontendUbicaciones
         wp_nonce_field('mc_save_meta_box_data', 'mc_meta_nonce' );
         $coords = get_post_meta($post->ID, '_mc_meta_coordenadas', true);
         ?>
-        <input type="text" name="_mc_meta_coordenadas" style="width:100%" value="<?php echo $coords ?>"/><br>
-        <a target="_blank" href="https://www.google.com/maps?q=<?php echo str_replace(' ', '', $coords) ?>&z=16">Probar</a>
+        <input type="text" id="mc_meta_coordenadas" name="_mc_meta_coordenadas" style="width:100%" value="<?php echo $coords ?>"/><br>
+        <a class="mc_meta_coordenadas" target="_blank" href="https://www.google.com/maps?q=<?php echo str_replace(' ', '', $coords) ?>&z=16" data-coords="">Probar coordenadas</a>
         <?php
+        $this->agregarJavascriptMeta();
     }
 
     public function agregarMetaDireccion($post)
     {
         $direccion = get_post_meta($post->ID, '_mc_meta_direccion', true); ?>
-        <input type="text" name="_mc_meta_direccion" style="width:100%" value="<?php echo $direccion ?>"/>
+        <input type="text" id="mc_meta_direccion" name="_mc_meta_direccion" style="width:100%" value="<?php echo $direccion ?>"/>
         <small>Formato: Direccion, Ciudad, Provincia, Pais</small>
         <br>
-        <a target="_blank" href="https://www.google.com.ar/maps/place/<?php echo urlencode($direccion) ?>">Probar</a>
+        <a class="mc_meta_direccion" target="_blank" href="https://www.google.com.ar/maps/place/<?php echo urlencode($direccion) ?>" data-direccion="">Probar direccion</a>
+        <?php
+    }
+
+    private function agregarJavascriptMeta()
+    {
+        ?>
+        <script type="text/javascript">
+            jQuery(function($) {
+                $('#mc_meta_coordenadas, #mc_meta_direccion')
+                    .on('keyup keydown keypress', function(event) {
+                        $this = $(this);
+                        id = $this.attr('id');
+                        if (id == 'mc_meta_coordenadas') {
+                            coordenadas = $this.val().replace(' ', '');
+                            $link = $('a.' + id);
+                            if ($link.attr('data-coords') != coordenadas) {
+                                $link.attr('data-coords', coordenadas);
+                                $link.attr('href', 'https://www.google.com/maps?q=' + coordenadas + '&z=16');
+                            }
+                        } else if (id == 'mc_meta_direccion') {
+                            direccion = $this.val()
+                            direccion = escape(direccion);
+                            $link = $('a.' + id);
+                            if ($link.attr('data-direccion') != direccion) {
+                                $link.attr('data-direccion', direccion);
+                                $link.attr('href', 'https://www.google.com.ar/maps/place/' + direccion);
+                            }
+                        }
+                    });
+
+            })
+        </script>
         <?php
     }
 
