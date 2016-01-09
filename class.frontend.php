@@ -18,7 +18,7 @@ class FrontendUbicaciones
         wp_enqueue_style('pda-css', plugin_dir_url( __FILE__ ) . 'ubicaciones.css');
         wp_enqueue_script('pda-js', plugin_dir_url( __FILE__ ) . 'ubicaciones.js', array(), null, true);
 
-        $url = 'https://maps.googleapis.com/maps/api/js?';
+        $url = 'https://maps.googleapis.com/maps/api/js';
         if (!empty($this->clave)) {
             $url .= 'key=' . $this->clave;
         }
@@ -86,58 +86,31 @@ class FrontendUbicaciones
         add_meta_box('datos-pda-coord', 'Coordenadas', array($this, 'agregarMetaCoordenadas'), 'ubicacion', 'side', 'high');
     }
 
-    public function agregarMetaCoordenadas($post)
-    {
-        wp_nonce_field('mc_save_meta_box_data', 'mc_meta_nonce' );
-        $coords = get_post_meta($post->ID, '_mc_meta_coordenadas', true);
-        ?>
-        <input type="text" id="mc_meta_coordenadas" name="_mc_meta_coordenadas" style="width:100%" value="<?php echo $coords ?>"/><br>
-        <a class="mc_meta_coordenadas" target="_blank" href="https://www.google.com/maps?q=<?php echo str_replace(' ', '', $coords) ?>&z=16" data-coords="">Probar coordenadas</a>
-        <?php
-        $this->agregarJavascriptMeta();
-    }
 
     public function agregarMetaDireccion($post)
     {
         $direccion = get_post_meta($post->ID, '_mc_meta_direccion', true); ?>
+        <small>Formato: Direccion, Ciudad, Provincia, Pais (separados por comas)</small>
         <input type="text" id="mc_meta_direccion" name="_mc_meta_direccion" style="width:100%" value="<?php echo $direccion ?>"/>
-        <small>Formato: Direccion, Ciudad, Provincia, Pais</small>
         <br>
         <a class="mc_meta_direccion" target="_blank" href="https://www.google.com.ar/maps/place/<?php echo urlencode($direccion) ?>" data-direccion="">Probar direccion</a>
         <?php
     }
 
-    private function agregarJavascriptMeta()
-    {
-        ?>
-        <script type="text/javascript">
-            jQuery(function($) {
-                $('#mc_meta_coordenadas, #mc_meta_direccion')
-                    .on('keyup keydown keypress', function(event) {
-                        $this = $(this);
-                        id = $this.attr('id');
-                        if (id == 'mc_meta_coordenadas') {
-                            coordenadas = $this.val().replace(' ', '');
-                            $link = $('a.' + id);
-                            if ($link.attr('data-coords') != coordenadas) {
-                                $link.attr('data-coords', coordenadas);
-                                $link.attr('href', 'https://www.google.com/maps?q=' + coordenadas + '&z=16');
-                            }
-                        } else if (id == 'mc_meta_direccion') {
-                            direccion = $this.val()
-                            direccion = escape(direccion);
-                            $link = $('a.' + id);
-                            if ($link.attr('data-direccion') != direccion) {
-                                $link.attr('data-direccion', direccion);
-                                $link.attr('href', 'https://www.google.com.ar/maps/place/' + direccion);
-                            }
-                        }
-                    });
 
-            })
-        </script>
+    public function agregarMetaCoordenadas($post)
+    {
+        wp_nonce_field('mc_save_meta_box_data', 'mc_meta_nonce' );
+        $coords = get_post_meta($post->ID, '_mc_meta_coordenadas', true);
+        ?>
+        <small>Si este campo está vacío, el marcador apuntará a la dirección.</small>
+        <input type="text" id="mc_meta_coordenadas" name="_mc_meta_coordenadas" style="width:100%" value="<?php echo $coords ?>"/><br>
+        <a class="mc_meta_coordenadas" style="margin-top: 0.5em" target="_blank" href="https://www.google.com/maps?q=<?php echo str_replace(' ', '', $coords) ?>&z=16" data-coords="">Probar coordenadas</a><br>
+        <a href="#" id="cargarMapa" class="button" style="margin-top: 0.5em">Buscar ubicación</a>
+        <div id="mapaLocalizar"></div>
         <?php
     }
+
 
     /**
      * Convierte las ubicaciones en un objeto javascript

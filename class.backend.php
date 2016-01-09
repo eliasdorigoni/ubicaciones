@@ -1,4 +1,5 @@
 <?php
+
 class BackendUbicaciones extends FrontendUbicaciones
 {
     function __construct()
@@ -7,6 +8,13 @@ class BackendUbicaciones extends FrontendUbicaciones
         add_action('save_post',  array($this, 'guardarMeta')); 
         add_action('admin_menu', array($this, 'registrarMenu'));
         add_action('admin_init', array($this, 'registrarOpcionesMenu'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueueBackend'));
+    }
+
+    public function enqueueBackend($hook) {
+        if ($hook != 'post.php') return;
+        wp_enqueue_script('gmaps', 'https://maps.googleapis.com/maps/api/js');
+        wp_enqueue_script('gmaps-js', plugin_dir_url( __FILE__ ) . 'metaLocalizar.js');
     }
 
     public function registrarMenu()
